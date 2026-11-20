@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pulse — Modern Social Media</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="app" class="app-container">
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar-left">
+      <div class="sidebar-brand" onclick="navigateTo('feed')">
+        <div class="brand-logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+          </svg>
+        </div>
+        <span class="brand-name">Pulse</span>
+      </div>
+
+      <nav class="nav-menu">
+        <a href="#feed" class="nav-item active" data-nav="feed">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          <span>Home</span>
+        </a>
+        <a href="#explore" class="nav-item" data-nav="explore">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+          <span>Explore</span>
+        </a>
+        <a href="#profile" class="nav-item auth-only" data-nav="profile" id="nav-profile-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <span>Profile</span>
+        </a>
+        <button id="theme-toggle-btn" class="nav-item btn-link" title="Toggle Dark/Light Mode">
+          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+          <span class="theme-label">Theme</span>
+        </button>
+      </nav>
+
+      <button class="btn btn-primary btn-compose" onclick="focusComposer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+        <span>Post</span>
+      </button>
+
+      <!-- User Account Widget in Sidebar -->
+      <div class="sidebar-user" id="sidebar-user-section">
+        <!-- Injected dynamically by auth.js -->
+      </div>
+    </aside>
+
+    <!-- CENTER MAIN CONTENT -->
+    <main class="main-content">
+      <!-- HEADER / TOP NAV BAR -->
+      <header class="top-bar">
+        <div class="top-bar-title" id="page-title">Home</div>
+        <div class="top-bar-actions">
+          <button class="icon-btn mobile-search-btn" onclick="document.querySelector('.search-input').focus()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- FEED TABS (For You / Following) -->
+      <div class="feed-tabs" id="feed-tabs">
+        <button class="tab-btn active" data-feed="all" onclick="switchFeedTab('all')">For You</button>
+        <button class="tab-btn" data-feed="following" onclick="switchFeedTab('following')">Following</button>
+      </div>
+
+      <!-- POST COMPOSER BOX -->
+      <div class="composer-card" id="composer-card">
+        <div class="composer-avatar-col">
+          <img src="https://api.dicebear.com/7.x/bottts/svg?seed=guest" alt="Avatar" class="avatar avatar-md" id="composer-avatar">
+        </div>
+        <div class="composer-main-col">
+          <textarea id="composer-text" placeholder="What's happening in your world?" rows="3" maxlength="1000"></textarea>
+
+          <!-- Uploaded / Selected image preview -->
+          <div id="composer-media-preview" class="media-preview hidden">
+            <img src="" alt="Preview" id="media-preview-img">
+            <button class="media-preview-remove" onclick="removeComposerMedia()" title="Remove image">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+          </div>
+
+          <!-- URL input row (collapsible) -->
+          <div id="image-url-row" class="image-url-row hidden">
+            <input type="url" id="composer-image-url" placeholder="Paste image URL (https://...)" class="input-sm">
+            <button class="btn btn-secondary btn-sm" onclick="applyImageUrl()">Add</button>
+          </div>
+
+          <div class="composer-footer">
+            <div class="composer-tools">
+              <!-- File upload button -->
+              <label class="icon-btn" title="Upload an image">
+                <input type="file" id="composer-file-input" accept="image/*" class="file-hidden">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+              </label>
+              <!-- URL toggle button -->
+              <button class="icon-btn" title="Add image by URL" onclick="toggleImageUrlRow()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+              </button>
+              <span id="char-counter" class="char-counter">1000</span>
+            </div>
+            <button id="composer-submit-btn" class="btn btn-primary btn-sm" onclick="submitPost()">
+              <span>Post</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN VIEWS CONTAINER -->
+      <div id="views-container">
+        <!-- 1. FEED VIEW -->
+        <div id="view-feed" class="view-panel active">
+          <div id="posts-feed" class="posts-feed">
+            <div class="loading-spinner-container">
+              <div class="spinner"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. USER PROFILE VIEW -->
+        <div id="view-profile" class="view-panel">
+          <!-- Injected dynamically by renderProfileView() -->
+        </div>
+
+        <!-- 3. SEARCH & EXPLORE VIEW -->
+        <div id="view-explore" class="view-panel">
+          <!-- Injected dynamically -->
+        </div>
+
+        <!-- 4. SINGLE POST DETAIL VIEW -->
+        <div id="view-post-detail" class="view-panel">
+          <!-- Injected dynamically -->
+        </div>
+      </div>
+    </main>
+
+    <!-- RIGHT SIDEBAR -->
+    <aside class="sidebar-right">
+      <!-- Search Bar -->
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="global-search-input" class="search-input" placeholder="Search Pulse (posts, #tags, people)...">
+        <button id="search-clear-btn" class="search-clear hidden" onclick="clearSearch()">×</button>
+      </div>
+
+      <!-- Quick Demo Accounts Switcher -->
+      <div class="sidebar-card demo-accounts-card">
+        <div class="sidebar-card-header">
+          <h3>Demo Accounts</h3>
+          <span class="badge">1-Click</span>
+        </div>
+        <p class="sidebar-card-desc">Switch accounts instantly to test profiles, likes & follow features:</p>
+        <div class="demo-user-list" id="demo-user-list">
+          <!-- Injected dynamically -->
+        </div>
+      </div>
+
+      <!-- Who to Follow Widget -->
+      <div class="sidebar-card suggestions-card">
+        <div class="sidebar-card-header">
+          <h3>Who to Follow</h3>
+          <button class="btn-link refresh-suggestions" onclick="loadSuggestions()" title="Refresh">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+          </button>
+        </div>
+        <div class="suggestions-list" id="suggestions-list">
+          <!-- Injected dynamically -->
+        </div>
+      </div>
+
+      <!-- Trending Hashtags Widget -->
+      <div class="sidebar-card trending-card">
+        <div class="sidebar-card-header">
+          <h3>Trending Topics</h3>
+        </div>
+        <div class="trending-list">
+          <div class="trending-item" onclick="filterByTag('webdev')">
+            <span class="trending-cat">Technology · Trending</span>
+            <span class="trending-tag">#webdev</span>
+            <span class="trending-meta">Frontend architecture & reactivity</span>
+          </div>
+          <div class="trending-item" onclick="filterByTag('frontend')">
+            <span class="trending-cat">Engineering · Trending</span>
+            <span class="trending-tag">#frontend</span>
+            <span class="trending-meta">Design systems & performance</span>
+          </div>
+          <div class="trending-item" onclick="filterByTag('nature')">
+            <span class="trending-cat">Photography · Trending</span>
+            <span class="trending-tag">#nature</span>
+            <span class="trending-meta">Mountains, lakes & trails</span>
+          </div>
+          <div class="trending-item" onclick="filterByTag('indiedev')">
+            <span class="trending-cat">Gaming · Trending</span>
+            <span class="trending-tag">#indiedev</span>
+            <span class="trending-meta">Audio synths & devlogs</span>
+          </div>
+        </div>
+      </div>
+
+      <footer class="sidebar-footer">
+        <p>© 2026 Pulse Media Inc. · Built with Express & SQLite</p>
+      </footer>
+    </aside>
+
+    <!-- MOBILE BOTTOM NAVIGATION -->
+    <nav class="mobile-nav">
+      <a href="#feed" class="mobile-nav-item active" data-nav="feed">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+      </a>
+      <a href="#explore" class="mobile-nav-item" data-nav="explore">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon></svg>
+      </a>
+      <button class="mobile-nav-item btn-mobile-compose" onclick="focusComposer()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <a href="#profile" class="mobile-nav-item auth-only" data-nav="profile">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      </a>
+      <button class="mobile-nav-item" onclick="toggleTheme()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line></svg>
+      </button>
+    </nav>
+  </div>
+
+  <!-- AUTH MODAL (Login / Register) -->
+  <div id="auth-modal" class="modal-backdrop hidden">
+    <div class="modal-box auth-modal-box">
+      <button class="modal-close-btn" onclick="closeAuthModal()">✕</button>
+
+      <div class="auth-tabs">
+        <button id="auth-tab-login" class="auth-tab-btn active" onclick="switchAuthTab('login')">Sign In</button>
+        <button id="auth-tab-register" class="auth-tab-btn" onclick="switchAuthTab('register')">Create Account</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="login-form" class="auth-form" onsubmit="handleLoginSubmit(event)">
+        <div class="form-group">
+          <label>Username or Email</label>
+          <input type="text" id="login-identifier" class="form-input" placeholder="e.g. sarah_codes or sarah@example.com" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="login-password" class="form-input" placeholder="••••••••" required>
+        </div>
+        <div id="login-error" class="form-error hidden"></div>
+        <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="register-form" class="auth-form hidden" onsubmit="handleRegisterSubmit(event)">
+        <div class="form-group">
+          <label>Display Name</label>
+          <input type="text" id="reg-name" class="form-input" placeholder="e.g. Maya Lin" required>
+        </div>
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="reg-username" class="form-input" placeholder="e.g. maya_lin (letters, numbers, _)" pattern="[a-zA-Z0-9_]{3,20}" title="3-20 letters, numbers, or underscores" required>
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="reg-email" class="form-input" placeholder="name@example.com" required>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="reg-password" class="form-input" placeholder="At least 6 characters" minlength="6" required>
+        </div>
+        <div id="register-error" class="form-error hidden"></div>
+        <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- EDIT PROFILE MODAL -->
+  <div id="edit-profile-modal" class="modal-backdrop hidden">
+    <div class="modal-box edit-profile-box">
+      <div class="modal-header">
+        <h3>Edit Profile</h3>
+        <button class="modal-close-btn" onclick="closeEditProfileModal()">✕</button>
+      </div>
+      <form id="edit-profile-form" onsubmit="handleProfileUpdate(event)">
+        <div class="form-group">
+          <label>Display Name</label>
+          <input type="text" id="edit-display-name" class="form-input" maxlength="50" required>
+        </div>
+        <div class="form-group">
+          <label>Bio</label>
+          <textarea id="edit-bio" class="form-input" rows="3" maxlength="200" placeholder="Tell the world about yourself..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Avatar</label>
+          <div class="avatar-edit-row">
+            <img src="" alt="Avatar" id="edit-avatar-preview" class="avatar avatar-lg">
+            <div class="avatar-edit-inputs">
+              <label class="btn btn-secondary btn-sm upload-btn">
+                <span>Upload New Photo</span>
+                <input type="file" id="edit-avatar-file" accept="image/*" class="file-hidden">
+              </label>
+              <input type="url" id="edit-avatar-url" class="form-input input-sm" placeholder="Or paste image URL...">
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Banner Image URL</label>
+          <input type="url" id="edit-banner-url" class="form-input" placeholder="https://images.unsplash.com/...">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeEditProfileModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="save-profile-btn">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- USERS LIST MODAL (Followers / Following / Likes) -->
+  <div id="users-modal" class="modal-backdrop hidden">
+    <div class="modal-box users-modal-box">
+      <div class="modal-header">
+        <h3 id="users-modal-title">Followers</h3>
+        <button class="modal-close-btn" onclick="closeUsersModal()">✕</button>
+      </div>
+      <div id="users-modal-list" class="users-modal-list">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATIONS CONTAINER -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- SCRIPTS -->
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
